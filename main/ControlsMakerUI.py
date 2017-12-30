@@ -3,7 +3,7 @@ from maya import OpenMayaUI, cmds, mel
 import pymel.core as pm
 import uiStyle
 import logging
-from ..core import rig_class as rcl
+from ..core import controlObject as cob
 from functools import partial
 try:
     from PySide2 import QtWidgets, QtCore, QtGui
@@ -11,7 +11,7 @@ except ImportError:
     from PySide import QtCore, QtGui
     QtWidgets = QtGui
 
-reload(rcl)
+reload(cob)
 reload(uiStyle)
 # ------------------------------------------------------------------------------
 
@@ -64,7 +64,7 @@ class main(QtWidgets.QMainWindow):
     def _initUIValue(self):
         self.nameSuffix = 'ctl'
         self.name = "controlObject%s"%self.nameSuffix
-        self.controlObject = rcl.ControlObject(color=(255,255,0,255))
+        self.controlObject = cob.ControlObject(color=(255,255,0,255))
         self.controlColor = tuple(self.controlObject.color)
 
     def _initMainUI(self):
