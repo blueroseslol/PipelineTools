@@ -97,11 +97,14 @@ class main(QtWidgets.QMainWindow):
         utilsgrp = uiStyle.buttonsGroup(
             'Utilities',
             ['Renamer'],
+            iconsPath = ["%s/icon/%s.png"%(os.path.dirname(os.path.dirname(__file__)), iconName) for iconName in ['rename']],
             actions=[RenamerUI.show,]
         )
+        # print os.
         rigginggrp = uiStyle.buttonsGroup(
             'Rigging',
             ['RebuildBS', 'Skin Weight Setter', 'Control Maker'],
+            iconsPath = ["%s/icon/%s.png"%(os.path.dirname(os.path.dirname(__file__)), iconName) for iconName in ['blenshape', 'reskin', 'rigControls']],
             actions=[RebuildBSUI.show, SkinSetterUI.show, ControlsMakerUI.show]
         )
         self.mainLayout.addWidget(utilsgrp)

@@ -191,10 +191,17 @@ def multiButtonsLayout(names, parent=None, actions=[]):
     else:
         return (tuple(createWidgets), layout)
 
-def buttonsGroup(groupnames, names, collums=2, parent=None, actions=[]):
+def buttonsGroup(groupnames, names, collums=2, parent=None, iconsPath=[], actions=[]):
     group = QtWidgets.QGroupBox(groupnames)
     layout = QtWidgets.QGridLayout()
     buttons = [QtWidgets.QPushButton(name) for name in names]
+    for id, iconPath in enumerate(iconsPath):
+        icon = QtGui.QIcon(iconPath)
+        buttons[id].setIcon(icon)
+        buttons[id].setText('')
+        buttons[id].setIconSize(QtCore.QSize(28,28))
+        buttons[id].setFixedSize(QtCore.QSize(28,28))
+        buttons[id].setStyleSheet('QPushButton {border-style: none; border-width: 0px; background-color: rgba(0,0,0,0) } ')
     stack = buttons[:]
     row=0
     while stack:
@@ -205,6 +212,7 @@ def buttonsGroup(groupnames, names, collums=2, parent=None, actions=[]):
         row += 1
     for id, action in enumerate(actions):
         buttons[id].clicked.connect(action)
+
     group.setLayout(layout)
     return group
 

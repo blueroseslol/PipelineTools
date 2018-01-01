@@ -62,6 +62,7 @@ class main(object):
             'Octa': self.Octa,
             'Cylinder': self.Cylinder,
             'Sphere': self.Sphere,
+            'Hemisphere': self.HalfSphere,
             'NSphere': self.NSphere,
             'Rectangle': self.Rectangle
         }
@@ -226,14 +227,21 @@ class main(object):
             radius=self.radius,
             step=self.step,
             length=self.length)
-        # if self.axis == '-
+        if self.axis == '-XY' or self.axis == '-XZ':
+            crv.setRotation((180,0,0))
+            pm.makeIdentity(crv, apply=True)
+        elif self.axis == '-YX':
+            crv.setRotation((0,0,180))
+            pm.makeIdentity(crv, apply=True)
         return crv
 
     @__setProperty__
     def Circle(self):
         crv = pm.circle(
-            self.name,
+            name=self.name,
             radius=self.radius)
+        crv[0].setRotation((-90,0,0))
+        pm.makeIdentity(crv[0], apply=True)
         return crv[0]
 
     @__setProperty__
@@ -290,6 +298,21 @@ class main(object):
             sphere=True,
             length=0)
         return crv
+# pm.select(pm.PyNode('controlObject_ctl').cv[38:48], pm.PyNode('controlObject_ctl').cv[70:80])
+
+    @__setProperty__
+    def HalfSphere(self):
+        crv = createPinCircle(
+            self.name,
+            axis=self._axis,
+            radius=self.radius,
+            step=self.step,
+            sphere=True,
+            length=0)
+        pm.delete(crv.cv[38:48], crv.cv[70:80])
+        crv.setRotation((-90,0,0))
+        pm.makeIdentity(crv, apply=True)
+        return crv
 
     @__setProperty__
     def Rectangle(self):
@@ -306,14 +329,14 @@ class main(object):
         axisData['XY'] = (0, 0, 0)
         axisData['XZ'] = (90, 0, 0)
         axisData['YZ'] = (0, 0, 90)
-        axisData['YX'] = (-180, 0, 0)
+        axisData['YX'] = (180, 0, 0)
         axisData['ZX'] = (-90, 0, 0)
         axisData['ZY'] = (0, 0, -90)
         assert (axis in axisData), "set axis data don't have '%s' axis.\nAvailable axis:%s" % (axis, ','.join(axisData))
         control.setRotation(axisData[axis])
         print axisData[axis]
         # print control.getRotation()
-        # pm.makeIdentity(control, apply=True)
+        pm.makeIdentity(control, apply=True)
 
     def setColor(self, control):
         try:

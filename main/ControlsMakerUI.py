@@ -60,6 +60,8 @@ class main(QtWidgets.QMainWindow):
         self.setWindowTitle('Control Maker')
         self.setObjectName(self._name)
         self.setStyleSheet(uiStyle.styleSheet)
+        self.createMenuBar()
+        self.createStatusBar()
 
     def _initUIValue(self):
         self.nameSuffix = 'ctl'
@@ -85,8 +87,7 @@ class main(QtWidgets.QMainWindow):
         self.mainCtner.setLayout(self.mainLayout)
         self.setCentralWidget(self.mainCtner)
         self.setStyleSheet(uiStyle.styleSheet)
-        self.createMenuBar()
-        self.createStatusBar()
+        self.disableSetAxis = False
         self._connectFunction()
 
     def createMainWidgets(self):
@@ -98,6 +99,9 @@ class main(QtWidgets.QMainWindow):
         # - Create Sub Layout --------------------------
         controlAttributeGroupLayout = QtWidgets.QGridLayout()
         controlNameAttributeLayout = QtWidgets.QVBoxLayout()
+        controlAttributeGroupLayout.setAlignment(QtCore.Qt.AlignTop)
+        controlNameAttributeLayout.setAlignment(QtCore.Qt.AlignTop)
+        controlNameAttributeLayout.setSpacing(2)
         controlNameLayout = QtWidgets.QHBoxLayout()
         controlAttributeLayout = QtWidgets.QHBoxLayout()
         controlShapeLayout = QtWidgets.QVBoxLayout()
@@ -140,12 +144,16 @@ class main(QtWidgets.QMainWindow):
             groupLabel='Offset: ',
             parent=controlOptionGroupLayout
         )
+        self.addControlShape_button = QtWidgets.QPushButton('Add Shape')
+        self.deleteControlShape_button = QtWidgets.QPushButton('Delete Shape')
         self.changeControlShape_button = QtWidgets.QPushButton('Change Shape')
         self.createControl_button = QtWidgets.QPushButton('Create Control')
         self.setColor_button = QtWidgets.QPushButton('Set Color')
+        createButtonLayout.addWidget(self.addControlShape_button)
+        createButtonLayout.addWidget(self.deleteControlShape_button)
         createButtonLayout.addWidget(self.changeControlShape_button)
-        createButtonLayout.addWidget(self.createControl_button)
         createButtonLayout.addWidget(self.setColor_button)
+        createButtonLayout.addWidget(self.createControl_button)
         layout.addWidget(controlOptionGroup)
         layout.addLayout(createButtonLayout)
         # ----------------------------------------------
@@ -213,13 +221,15 @@ class main(QtWidgets.QMainWindow):
         self.controlColor_button.clicked.connect(self.onChangeColor)
         self.controlType_combobox.currentTextChanged.connect(self.onChangeType)
         self.controlSmoothness_combobox.currentTextChanged.connect(self.onChangeResolution)
-        self.controlAxis_combobox.currentIndexChanged.connect(self.onChangeAxis)
+        self.controlAxis_combobox.currentTextChanged.connect(self.onChangeAxis)
         # self.groupControl_checkbox.stateChanged.connect(self.setGroupOptionState)
         # self.setAxis_checkbox.stateChanged.connect(self.setAxisOptionState)
         # self.mirror_checkbox.stateChanged.connect(self.setMirrorOptionState)        
         self.offsetX_floatspinbox.valueChanged.connect(self.onChangeOffsetX)
         self.offsetY_floatspinbox.valueChanged.connect(self.onChangeOffsetY)
         self.offsetZ_floatspinbox.valueChanged.connect(self.onChangeOffsetZ)
+        self.addControlShape_button.clicked.connect(self.onAddShape)
+        self.deleteControlShape_button.clicked.connect(self.onDeleteShape)
         self.changeControlShape_button.clicked.connect(self.onChangeShape)
         self.createControl_button.clicked.connect(self.onCreateShape)
         self.setColor_button.clicked.connect(self.onSetColor)
@@ -252,6 +262,8 @@ class main(QtWidgets.QMainWindow):
         self.controlObject.currentType = value
         currentIndex = self.controlAxis_combobox.currentIndex()
         self.controlAxis_combobox.setEnabled(True)
+        self.controlSmoothness_combobox.setEnabled(True)
+        self.disableSetAxis = True
         self.controlObject.forceSetAxis = False
         if value.endswith('Pin'):
             self.controlAxis_combobox.clear()
@@ -259,27 +271,36 @@ class main(QtWidgets.QMainWindow):
                 self.controlAxis_combobox.addItems(
                     self.controlObject._axisList[:6])
             if value.startswith('Sphere'):
-                axisList = self.controlObject._axisList[:3]
+                axisList = self.controlObject._axisList[:2]
+                axisList.append(self.controlObject._axisList[3])
+                axisList.extend(['-'+a for a in axisList])
+                self.controlAxis_combobox.addItems(axisList)
             else:
                 self.controlAxis_combobox.addItems(
                     self.controlObject._axisList)
-        elif any([value == typ for typ in ['Cylinder','Circle']]):
+        elif any([value == typ for typ in ['Cylinder','Circle','Hemisphere']]):
             self.controlObject.forceSetAxis = True
             self.controlAxis_combobox.clear()
             self.controlAxis_combobox.addItems(
                 self.controlObject._axisList[:6])
-            if currentIndex > 5:
-                self.controlAxis_combobox.setCurrentIndex(5)
         elif value == 'Rectangle':
+            self.controlSmoothness_combobox.setEnabled(False)
             self.controlObject.forceSetAxis = True
             self.controlAxis_combobox.clear()
             self.controlAxis_combobox.addItems(
                 self.controlObject._axisList[:3])
-            if currentIndex > 2:
-                self.controlAxis_combobox.setCurrentIndex(2)
         else:
             self.controlAxis_combobox.setEnabled(False)
         self.controlAxis_combobox.setCurrentIndex(currentIndex)
+        self.disableSetAxis = False
+        if currentIndex > (self.controlAxis_combobox.count()-1):
+            self.controlAxis_combobox.setCurrentIndex(
+                self.controlAxis_combobox.count()-1)
+        if any([value == typ for typ in ['Octa','NSphere','Hemisphere','Sphere','Circle']]):
+            self.controlLength_floatspinbox.setEnabled(False)
+            self.controlSmoothness_combobox.setEnabled(False)
+        else:
+            self.controlLength_floatspinbox.setEnabled(True)
         log.debug("CurrentType: %s"%self.controlObject.currentType.__name__)
 
     def onChangeResolution(self, value):
@@ -287,26 +308,9 @@ class main(QtWidgets.QMainWindow):
         log.debug("Resolution: %s"%self.controlObject.step)
 
     def onChangeAxis(self, value):
-        self.controlObject.axis = self.controlObject._axisList[value]
+        if not self.disableSetAxis:
+            self.controlObject.axis = value
         log.debug("Axis: %s"%self.controlObject.axis)
-
-    def setGroupOptionState(self, value):
-        self.controlObject.groupControl = value
-
-    def setAxisOptionState(self, value):
-        self.controlObject.forceSetAxis = value
-        currentIndex = self.controlAxis_combobox.currentIndex()
-        if value:
-            self.controlAxis_combobox.clear()
-            self.controlAxis_combobox.addItems(
-                ['XY','XZ','YZ','YX','ZX','ZY'])
-            if currentIndex > 5:
-                self.controlAxis_combobox.setCurrentIndex(5)
-        else:
-            self.controlAxis_combobox.clear()
-            self.controlAxis_combobox.addItems(
-                self.controlObject._axisList)
-        self.controlAxis_combobox.setCurrentIndex(currentIndex)
 
     def onChangeOffsetX(self, value):
         offset = self.controlObject.offset
@@ -363,6 +367,21 @@ class main(QtWidgets.QMainWindow):
             pm.parent(temp.getShape(), control, r=True, s=True)
             pm.delete(temp)
             # return control
+    def onAddShape(self):
+        for control in pm.selected():
+            temp = self.controlObject.currentType()
+            #temp.setParent(selectControl.getParent())
+            # ru.xformTo(temp, control)
+            # pm.delete(control.getShape(), shape=True)
+            pm.parent(temp.getShape(), control, r=True, s=True)
+            pm.delete(temp)
+
+    def onDeleteShape(self):
+        for control in pm.selected():
+            try:
+                pm.delete(control.getShapes()[-1])
+            except AttributeError, IndexError:
+                pass
 
 def show():
     win = main()
