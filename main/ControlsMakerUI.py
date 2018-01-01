@@ -3,7 +3,7 @@ from maya import OpenMayaUI, cmds, mel
 import pymel.core as pm
 import uiStyle
 import logging
-from ..core import controlObject as cob
+from ..core.objectClass import controlShape as cs
 from functools import partial
 try:
     from PySide2 import QtWidgets, QtCore, QtGui
@@ -11,13 +11,13 @@ except ImportError:
     from PySide import QtCore, QtGui
     QtWidgets = QtGui
 
-reload(cob)
+reload(cs)
 reload(uiStyle)
 # ------------------------------------------------------------------------------
 
 logging.basicConfig()
 log = logging.getLogger(__name__)
-log.setLevel(logging.ERROR)
+log.setLevel(logging.DEBUG)
 
 # ------------------------------------------------------------------------------
 
@@ -63,8 +63,8 @@ class main(QtWidgets.QMainWindow):
 
     def _initUIValue(self):
         self.nameSuffix = 'ctl'
-        self.name = "controlObject%s"%self.nameSuffix
-        self.controlObject = cob.ControlObject(color=(255,255,0,255))
+        self.name = "controlObject"
+        self.controlObject = cs.main(self.name, color=(255,255,0,255))
         self.controlColor = tuple(self.controlObject.color)
 
     def _initMainUI(self):
@@ -128,12 +128,10 @@ class main(QtWidgets.QMainWindow):
         controlAttributeGroupLayout.addLayout(controlShapeLayout,0,1)
         controlAttributeGroupLayout.setColumnStretch(0,2)
         layout.addLayout(controlAttributeGroupLayout)
-        self.groupControl_checkbox,\
-        self.setAxis_checkbox,\
-        self.mirror_checkbox = uiStyle.multiOptionsLayout(
-            ['group', 'force set axis', 'mirror'],
-            parent=controlOptionGroupLayout
-        )
+        # self.groupControl_checkbox, = uiStyle.multiOptionsLayout(
+        #     ['group',],
+        #     parent=controlOptionGroupLayout
+        # )
         self.offsetX_floatspinbox,\
         self.offsetY_floatspinbox,\
         self.offsetZ_floatspinbox = uiStyle.multiLabelLayout(
@@ -151,10 +149,12 @@ class main(QtWidgets.QMainWindow):
         layout.addWidget(controlOptionGroup)
         layout.addLayout(createButtonLayout)
         # ----------------------------------------------
+        self.controlName_text.setText(self.name)
         self.controlNameSuffix_comboBox.addItems(['ctl','cnt','control'])
         self.controlLength_floatspinbox.setValue(self.controlObject.length)
         self.controlRadius_floatspinbox.setValue(self.controlObject.radius)
         self.controlType_combobox.addItems(self.controlObject._controlType.keys())
+        self.controlType_combobox.setCurrentText('Pin')
         self.controlSmoothness_combobox.addItems(self.controlObject._resolutions.keys())
         self.controlAxis_combobox.addItems(self.controlObject._axisList)
         self.controlColor_button.setStyleSheet(".QPushButton { background-color: rgba(%d,%d,%d,%d) } "%tuple(self.controlObject.color))
@@ -211,27 +211,158 @@ class main(QtWidgets.QMainWindow):
         self.controlRadius_floatspinbox.valueChanged.connect(self.onChangeRadius)
         self.controlLength_floatspinbox.valueChanged.connect(self.onChangeLength)
         self.controlColor_button.clicked.connect(self.onChangeColor)
+        self.controlType_combobox.currentTextChanged.connect(self.onChangeType)
+        self.controlSmoothness_combobox.currentTextChanged.connect(self.onChangeResolution)
+        self.controlAxis_combobox.currentIndexChanged.connect(self.onChangeAxis)
+        # self.groupControl_checkbox.stateChanged.connect(self.setGroupOptionState)
+        # self.setAxis_checkbox.stateChanged.connect(self.setAxisOptionState)
+        # self.mirror_checkbox.stateChanged.connect(self.setMirrorOptionState)        
+        self.offsetX_floatspinbox.valueChanged.connect(self.onChangeOffsetX)
+        self.offsetY_floatspinbox.valueChanged.connect(self.onChangeOffsetY)
+        self.offsetZ_floatspinbox.valueChanged.connect(self.onChangeOffsetZ)
+        self.changeControlShape_button.clicked.connect(self.onChangeShape)
+        self.createControl_button.clicked.connect(self.onCreateShape)
+        self.setColor_button.clicked.connect(self.onSetColor)
 
     def onChangeName(self, value):
         self.controlObject.name = value
-        print self.controlObject.name
+        log.debug("name: %s"%self.controlObject.name)
 
     def onChangeNameSuffix(self, value):
         self.controlObject._suffix = value
-        print self.controlObject.name
+        log.debug("Name: %s"%self.controlObject.name)
 
     def onChangeRadius(self, value):
         self.controlObject.radius = value
-        print self.controlObject.radius
+        log.debug("Radius: %s"%self.controlObject.radius)
 
     def onChangeLength(self, value):
         self.controlObject.length = value
-        print self.controlObject.length
+        log.debug("Length: %s"%self.controlObject.length)
 
     def onChangeColor(self):
         colorDialog = QtWidgets.QColorDialog.getColor(QtCore.Qt.yellow)
-        self.controlObject.color = colorDialog.getRgb()
-        self.controlColor_button.setStyleSheet(".QPushButton { background-color: rgba(%d,%d,%d,%d) } "%tuple(self.controlObject.color))
+        color = colorDialog.getRgb()
+        self.controlColor_button.setStyleSheet(
+            ".QPushButton { background-color: rgba(%d,%d,%d,%d) } "%tuple(color))
+        self.controlObject.color = [color[0]/255.0, color[1]/255.0, color[2]/255.0, color[3]/255.0]
+        log.debug("Color: %s"%self.controlObject.color)
+
+    def onChangeType(self, value):
+        self.controlObject.currentType = value
+        currentIndex = self.controlAxis_combobox.currentIndex()
+        self.controlAxis_combobox.setEnabled(True)
+        self.controlObject.forceSetAxis = False
+        if value.endswith('Pin'):
+            self.controlAxis_combobox.clear()
+            if value.startswith('Double'):
+                self.controlAxis_combobox.addItems(
+                    self.controlObject._axisList[:6])
+            if value.startswith('Sphere'):
+                axisList = self.controlObject._axisList[:3]
+            else:
+                self.controlAxis_combobox.addItems(
+                    self.controlObject._axisList)
+        elif any([value == typ for typ in ['Cylinder','Circle']]):
+            self.controlObject.forceSetAxis = True
+            self.controlAxis_combobox.clear()
+            self.controlAxis_combobox.addItems(
+                self.controlObject._axisList[:6])
+            if currentIndex > 5:
+                self.controlAxis_combobox.setCurrentIndex(5)
+        elif value == 'Rectangle':
+            self.controlObject.forceSetAxis = True
+            self.controlAxis_combobox.clear()
+            self.controlAxis_combobox.addItems(
+                self.controlObject._axisList[:3])
+            if currentIndex > 2:
+                self.controlAxis_combobox.setCurrentIndex(2)
+        else:
+            self.controlAxis_combobox.setEnabled(False)
+        self.controlAxis_combobox.setCurrentIndex(currentIndex)
+        log.debug("CurrentType: %s"%self.controlObject.currentType.__name__)
+
+    def onChangeResolution(self, value):
+        self.controlObject.step = value
+        log.debug("Resolution: %s"%self.controlObject.step)
+
+    def onChangeAxis(self, value):
+        self.controlObject.axis = self.controlObject._axisList[value]
+        log.debug("Axis: %s"%self.controlObject.axis)
+
+    def setGroupOptionState(self, value):
+        self.controlObject.groupControl = value
+
+    def setAxisOptionState(self, value):
+        self.controlObject.forceSetAxis = value
+        currentIndex = self.controlAxis_combobox.currentIndex()
+        if value:
+            self.controlAxis_combobox.clear()
+            self.controlAxis_combobox.addItems(
+                ['XY','XZ','YZ','YX','ZX','ZY'])
+            if currentIndex > 5:
+                self.controlAxis_combobox.setCurrentIndex(5)
+        else:
+            self.controlAxis_combobox.clear()
+            self.controlAxis_combobox.addItems(
+                self.controlObject._axisList)
+        self.controlAxis_combobox.setCurrentIndex(currentIndex)
+
+    def onChangeOffsetX(self, value):
+        offset = self.controlObject.offset
+        offset[0] = value
+        self.controlObject.offset = offset
+        log.debug("Offset: %s"%self.controlObject.offset)
+
+    def onChangeOffsetY(self, value):
+        offset = self.controlObject.offset
+        offset[1] = value
+        self.controlObject.offset = offset
+        log.debug("Offset: %s"%self.controlObject.offset)
+
+    def onChangeOffsetZ(self, value):
+        offset = self.controlObject.offset
+        offset[2] = value
+        self.controlObject.offset = offset
+        log.debug("Offset: %s"%self.controlObject.offset)
+
+    def onCreateShape(self):
+        if pm.selected():
+            controls = []
+            for ob in pm.selected():
+                control = self.controlObject.currentType()
+                control.setMatrix(ob.getMatrix(ws=True), ws=True)
+                controls.append(control)
+            return controls
+        else:
+            control = self.controlObject.currentType
+            return control()
+
+    def onSetColor(self):
+        for control in pm.selected():
+            try:
+                controlShape = control.getShape()
+                if controlShape:
+                    controlShape.overrideEnabled.set(True)
+                    controlShape.overrideRGBColors.set(True)
+                    controlShape.overrideColorRGB.set(self.controlObject.color)
+                sg = control.shadingGroups()[0] if control.shadingGroups() else None
+                if sg:
+                    shdr = sg.inputs()[0]
+                    shdr.outColor.set(self.controlObject.color.rgb)
+                    shdr.outTransparency.set([self.controlObject.color.a for i in range(3)])
+            except AttributeError as why:
+                log.error(why)
+
+    def onChangeShape(self):
+        for control in pm.selected():
+            temp = self.controlObject.currentType()
+            #temp.setParent(selectControl.getParent())
+            # ru.xformTo(temp, control)
+            pm.delete(control.getShape(), shape=True)
+            pm.parent(temp.getShape(), control, r=True, s=True)
+            pm.delete(temp)
+            # return control
 
 def show():
     win = main()

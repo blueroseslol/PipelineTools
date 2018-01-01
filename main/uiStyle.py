@@ -191,8 +191,22 @@ def multiButtonsLayout(names, parent=None, actions=[]):
     else:
         return (tuple(createWidgets), layout)
 
-def buttonsGroup(names, collum=2, parent=None, actions=[]):
-    pass
+def buttonsGroup(groupnames, names, collums=2, parent=None, actions=[]):
+    group = QtWidgets.QGroupBox(groupnames)
+    layout = QtWidgets.QGridLayout()
+    buttons = [QtWidgets.QPushButton(name) for name in names]
+    stack = buttons[:]
+    row=0
+    while stack:
+        for collum in range(collums):
+            if stack:
+                button = stack.pop()
+                layout.addWidget(button, row, collum)
+        row += 1
+    for id, action in enumerate(actions):
+        buttons[id].clicked.connect(action)
+    group.setLayout(layout)
+    return group
 
 def findIcon(icon):
     """

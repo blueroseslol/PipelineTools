@@ -3,10 +3,6 @@ from maya import OpenMayaUI, cmds, mel
 import pymel.core as pm
 import uiStyle
 import logging
-import RenamerUI
-import ControlsMakerUI
-import RebuildBSUI
-import SkinSetterUI
 from functools import partial
 try:
     from PySide2 import QtWidgets, QtCore, QtGui
@@ -40,7 +36,7 @@ def mayaWindow():
     return window
 
 # ------------------------------------------------------------------------------
-__windowName__ = "PipelineToolsWindow"
+__windowName__ = "PipelineTools"
 __windowTitle__ = "Pipeline Tools"
 __statusMessage__ = "All UI"
 __version__ = "v01.0"
@@ -65,7 +61,7 @@ class main(QtWidgets.QMainWindow):
             self.setParent(mayaWindow())
         self.setWindowFlags(QtCore.Qt.Window)
         self.setWindowTitle(__windowTitle__)
-        self.setObjectName(__windowName__)
+        self.setObjectName(self._name)
         self.setStyleSheet(uiStyle.styleSheet)
 
     def _initUIValue(self):
@@ -94,18 +90,7 @@ class main(QtWidgets.QMainWindow):
         self._connectFunction()
 
     def createMainWidgets(self):
-        utilsgrp = uiStyle.buttonsGroup(
-            'Utilities',
-            ['Renamer'],
-            actions=[RenamerUI.show,]
-        )
-        rigginggrp = uiStyle.buttonsGroup(
-            'Rigging',
-            ['RebuildBS', 'Skin Weight Setter', 'Control Maker'],
-            actions=[RebuildBSUI.show, SkinSetterUI.show, ControlsMakerUI.show]
-        )
-        self.mainLayout.addWidget(utilsgrp)
-        self.mainLayout.addWidget(rigginggrp)
+        pass
 
     def createMenuBar(self):
         # create Action
@@ -126,7 +111,7 @@ class main(QtWidgets.QMainWindow):
 
     def createStatusBar(self):
         self.statusbar = self.statusBar()
-        self.statusbar.showMessage(__statusMessage__)
+        self.statusbar.showMessage('__statusMessage__')
     # UI Changed Action
     def createScriptJob(self,callbackEvent='SelectionChanged'):
         self.updateUIJob = pm.scriptJob(
