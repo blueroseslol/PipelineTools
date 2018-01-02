@@ -115,10 +115,12 @@ class main(QtWidgets.QMainWindow):
         self.controlNameSuffix_comboBox = uiStyle.labelGroup(
             "Suffix: ", QtWidgets.QComboBox, controlNameLayout)
         controlNameAttributeLayout.addLayout(controlNameLayout)
-        self.controlLength_floatspinbox = uiStyle.labelGroup(
-            "Length: ", QtWidgets.QDoubleSpinBox, controlAttributeLayout)
-        self.controlRadius_floatspinbox = uiStyle.labelGroup(
-            "Radius: ", QtWidgets.QDoubleSpinBox, controlAttributeLayout)
+        self.controlHeight_label, self.controlHeight_floatspinbox = uiStyle.labelGroup(
+            "Height: ", QtWidgets.QDoubleSpinBox, controlAttributeLayout, returnLabel=True)
+        self.controlLength_label, self.controlLength_floatspinbox = uiStyle.labelGroup(
+            "Length: ", QtWidgets.QDoubleSpinBox, controlAttributeLayout, returnLabel=True)
+        self.controlRadius_label, self.controlRadius_floatspinbox = uiStyle.labelGroup(
+            "Radius: ", QtWidgets.QDoubleSpinBox, controlAttributeLayout, returnLabel=True)
         self.controlColor_button = uiStyle.labelGroup(
             "Color: ", QtWidgets.QPushButton, controlAttributeLayout)
         controlNameAttributeLayout.addLayout(controlAttributeLayout)
@@ -157,10 +159,13 @@ class main(QtWidgets.QMainWindow):
         layout.addWidget(controlOptionGroup)
         layout.addLayout(createButtonLayout)
         # ----------------------------------------------
-        self.controlName_text.setText(self.name)
+        self.controlName_text.setPlaceholderText(self.name)
         self.controlNameSuffix_comboBox.addItems(['ctl','cnt','control'])
         self.controlLength_floatspinbox.setValue(self.controlObject.length)
         self.controlRadius_floatspinbox.setValue(self.controlObject.radius)
+        self.controlHeight_floatspinbox.setValue(self.controlObject.height)
+        self.controlHeight_label.hide()
+        self.controlHeight_floatspinbox.hide()
         self.controlType_combobox.addItems(self.controlObject._controlType.keys())
         self.controlType_combobox.setCurrentText('Pin')
         self.controlSmoothness_combobox.addItems(self.controlObject._resolutions.keys())
@@ -218,6 +223,7 @@ class main(QtWidgets.QMainWindow):
         self.controlNameSuffix_comboBox.currentTextChanged.connect(self.onChangeNameSuffix)
         self.controlRadius_floatspinbox.valueChanged.connect(self.onChangeRadius)
         self.controlLength_floatspinbox.valueChanged.connect(self.onChangeLength)
+        self.controlHeight_floatspinbox.valueChanged.connect(self.onChangeHeight)
         self.controlColor_button.clicked.connect(self.onChangeColor)
         self.controlType_combobox.currentTextChanged.connect(self.onChangeType)
         self.controlSmoothness_combobox.currentTextChanged.connect(self.onChangeResolution)
@@ -250,6 +256,10 @@ class main(QtWidgets.QMainWindow):
         self.controlObject.length = value
         log.debug("Length: %s"%self.controlObject.length)
 
+    def onChangeHeight(self, value):
+        self.controlObject.height = value
+        log.debug("Height: %s"%self.controlObject.height)
+
     def onChangeColor(self):
         colorDialog = QtWidgets.QColorDialog.getColor(QtCore.Qt.yellow)
         color = colorDialog.getRgb()
@@ -265,6 +275,13 @@ class main(QtWidgets.QMainWindow):
         self.controlSmoothness_combobox.setEnabled(True)
         self.disableSetAxis = True
         self.controlObject.forceSetAxis = False
+        self.controlLength_label.show()
+        self.controlLength_floatspinbox.show()
+        self.controlHeight_label.hide()
+        self.controlHeight_floatspinbox.hide()
+        self.controlRadius_label.show()
+        self.controlRadius_floatspinbox.show()
+        self.controlRadius_label.setText('Radius')
         if value.endswith('Pin'):
             self.controlAxis_combobox.clear()
             if value.startswith('Double'):
@@ -283,12 +300,14 @@ class main(QtWidgets.QMainWindow):
             self.controlAxis_combobox.clear()
             self.controlAxis_combobox.addItems(
                 self.controlObject._axisList[:6])
-        elif value == 'Rectangle':
+        elif any([value == typ for typ in ['Rectangle', 'Cross', 'Triangle', 'ThinCross', 'RoundSquare']]):
             self.controlSmoothness_combobox.setEnabled(False)
             self.controlObject.forceSetAxis = True
             self.controlAxis_combobox.clear()
             self.controlAxis_combobox.addItems(
                 self.controlObject._axisList[:3])
+            self.controlRadius_label.hide()
+            self.controlRadius_floatspinbox.hide()
         else:
             self.controlAxis_combobox.setEnabled(False)
         self.controlAxis_combobox.setCurrentIndex(currentIndex)
@@ -297,9 +316,16 @@ class main(QtWidgets.QMainWindow):
             self.controlAxis_combobox.setCurrentIndex(
                 self.controlAxis_combobox.count()-1)
         if any([value == typ for typ in ['Octa','NSphere','Hemisphere','Sphere','Circle']]):
-            self.controlLength_floatspinbox.setEnabled(False)
+            self.controlLength_label.hide()
+            self.controlLength_floatspinbox.hide()
+            self.controlHeight_label.hide()
+            self.controlHeight_floatspinbox.hide()
             self.controlSmoothness_combobox.setEnabled(False)
         else:
+            if any([value == typ for typ in ['Cube']]):
+                self.controlRadius_label.setText('Width')
+                self.controlHeight_label.show()
+                self.controlHeight_floatspinbox.show()
             self.controlLength_floatspinbox.setEnabled(True)
         log.debug("CurrentType: %s"%self.controlObject.currentType.__name__)
 
@@ -361,18 +387,14 @@ class main(QtWidgets.QMainWindow):
     def onChangeShape(self):
         for control in pm.selected():
             temp = self.controlObject.currentType()
-            #temp.setParent(selectControl.getParent())
-            # ru.xformTo(temp, control)
             pm.delete(control.getShape(), shape=True)
             pm.parent(temp.getShape(), control, r=True, s=True)
             pm.delete(temp)
             # return control
+
     def onAddShape(self):
         for control in pm.selected():
             temp = self.controlObject.currentType()
-            #temp.setParent(selectControl.getParent())
-            # ru.xformTo(temp, control)
-            # pm.delete(control.getShape(), shape=True)
             pm.parent(temp.getShape(), control, r=True, s=True)
             pm.delete(temp)
 

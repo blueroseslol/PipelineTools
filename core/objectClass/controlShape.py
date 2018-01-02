@@ -19,6 +19,7 @@ class main(object):
             radius=1.0,
             res=24,
             length=2.0,
+            height=2.0,
             axis='XY',
             offset=[0.0, 0.0, 0.0],
             color='red'):
@@ -26,6 +27,7 @@ class main(object):
         self.name = name
         self._radius = radius
         self._length = length
+        self._height = height
         self._axis = axis
         self._offset = offset
         self._step = 24
@@ -33,7 +35,6 @@ class main(object):
         self.controls = {}
         self.controls['all'] = []
         self.controlGps = []
-
         self._resolutions = {
             'low': 4,
             'mid': 8,
@@ -64,8 +65,14 @@ class main(object):
             'Sphere': self.Sphere,
             'Hemisphere': self.HalfSphere,
             'NSphere': self.NSphere,
-            'Rectangle': self.Rectangle
+            'Rectangle': self.Rectangle,
+            'Cube': self.Cube,
+            'RoundSquare': self.RoundSquare,
+            'Triangle': self.Triangle,
+            'Cross': self.Cross,
+            'ThinCross': self.ThinCross
         }
+
         self._currentType = self._controlType['Pin']
         self._uiOption = {
             'group':True,
@@ -104,6 +111,15 @@ class main(object):
     def length(self, newlength):
         assert any([isinstance(newlength, typ) for typ in [float, int]]), "length must be of type float"
         self._length = newlength
+
+    @property
+    def height(self):
+        return self._height
+
+    @height.setter
+    def height(self, newheight):
+        assert any([isinstance(newheight, typ) for typ in [float, int]]), "height must be of type float"
+        self._height = newheight
 
     @property
     def offset(self):
@@ -296,7 +312,8 @@ class main(object):
             radius=self.radius,
             step=self.step,
             sphere=True,
-            length=0)
+            length=0,
+            height=self.height)
         return crv
 # pm.select(pm.PyNode('controlObject_ctl').cv[38:48], pm.PyNode('controlObject_ctl').cv[70:80])
 
@@ -308,7 +325,8 @@ class main(object):
             radius=self.radius,
             step=self.step,
             sphere=True,
-            length=0)
+            length=0,
+            height=self.height)
         pm.delete(crv.cv[38:48], crv.cv[70:80])
         crv.setRotation((-90,0,0))
         pm.makeIdentity(crv, apply=True)
@@ -318,9 +336,73 @@ class main(object):
     def Rectangle(self):
         crv = create_square(
             self.name,
-            length=self.radius,
-            width=self.length,
+            length=self.length,
+            width=self.radius,
             offset=self.offset)
+        return crv
+
+    @__setProperty__
+    def Cube(self):
+        crv = create_shape(
+            self.name,
+            'cube',
+            length=self.length,
+            width=self.radius,
+            height=self.height,
+            offset=self.offset)
+        return crv
+
+    @__setProperty__
+    def RoundSquare(self):
+        crv = create_shape(
+            self.name,
+            'square_rounded',
+            length=self.length,
+            height=self.height,
+            width=self.radius,
+            offset=self.offset)
+        crv = pm.closeCurve(crv, replaceOriginal=True)[0]
+        crv.setRotation((0,-90,0))
+        # pm.makeIdentity(crv, apply=True)
+        return crv
+
+    @__setProperty__
+    def Triangle(self):
+        crv = create_shape(
+            self.name,
+            'triangle',
+            length=self.length,
+            height=self.height,
+            width=self.radius,
+            offset=self.offset)
+        crv.setRotation((0,-90,0))
+        pm.makeIdentity(crv, apply=True)
+        return crv
+
+    @__setProperty__
+    def Cross(self):
+        crv = create_shape(
+            self.name,
+            'cross',
+            length=self.length,
+            height=self.height,
+            width=self.radius,
+            offset=self.offset)
+        crv.setRotation((0,-90,0))
+        pm.makeIdentity(crv, apply=True)
+        return crv
+
+    @__setProperty__
+    def ThinCross(self):
+        crv = create_shape(
+            self.name,
+            'thin_cross',
+            length=self.length,
+            height=self.height,
+            width=self.radius,
+            offset=self.offset)
+        crv.setRotation((0,-90,0))
+        pm.makeIdentity(crv, apply=True)
         return crv
     #### control method
 
@@ -370,6 +452,28 @@ def create_square(
     ]
     key = range(len(pointMatrix))
     crv = pm.curve(name=name, d=1, p=pointMatrix, k=key)
+    log.debug(crv)
+    return crv
+
+def create_shape(
+        name,
+        shapename,
+        width=1.0,
+        length=1.0,
+        height=1.0,
+        offset=[0, 0, 0]):
+    data = {
+    'circle': ([(0.0, 0.7, -0.7), (0.0, 0.0, -1.0), (0.0, -0.7, -0.7), (0.0, -1.0, 0.0), (0.0, -0.7, 0.7), (0.0, 0.0, 1.0), (0.0, 0.7, 0.7), (0.0, 1.0, 0.0)], 3, 1),
+    'cross': ([(0.0, 0.5, -0.5), (0.0, 1.0, -0.5), (0.0, 1.0, 0.5), (0.0, 0.5, 0.5), (0.0, 0.5, 1.0), (0.0, -0.5, 1.0), (0.0, -0.5, 0.5), (0.0, -1.0, 0.5), (0.0, -1.0, -0.5), (0.0, -0.5, -0.5), (0.0, -0.5, -1.0), (0.0, 0.5, -1.0), (0.0, 0.5, -0.5)], 1, 1),
+    'cube': ([(-1.0, -1.0, 1.0), (-1.0, 1.0, 1.0), (-1.0, 1.0, -1.0), (-1.0, -1.0, -1.0), (-1.0, -1.0, 1.0), (1.0, -1.0, 1.0), (1.0, -1.0, -1.0), (1.0, 1.0, -1.0), (1.0, 1.0, 1.0), (1.0, -1.0, 1.0), (1.0, 1.0, 1.0), (-1.0, 1.0, 1.0), (-1.0, 1.0, -1.0), (1.0, 1.0, -1.0), (1.0, -1.0, -1.0), (-1.0, -1.0, -1.0)], 1, 1),
+    'locator': ([(-1.0, 0.0, 0.0), (1.0, 0.0, 0.0), (0.0, 0.0, 0.0), (0.0, -1.0, 0.0), (0.0, 1.0, 0.0), (0.0, 0.0, 0.0), (0.0, 0.0, 1.0), (0.0, 0.0, -1.0)], 1, 0),
+    'square': ([(0.0, -1.0, 1.0), (0.0, 1.0, 1.0), (0.0, 1.0, -1.0), (0.0, -1.0, -1.0), (0.0, -1.0, 1.0)], 1, 1),
+    'square_rounded': ([(0.0, 0.0, -1.0), (0.0, 0.5, -1.0), (0.0, 0.75, -1.0), (0.0, 1.0, -1.0), (0.0, 1.0, -0.75), (0.0, 1.0, -0.5), (0.0, 1.0, 0.5), (0.0, 1.0, 0.75), (0.0, 1.0, 1.0), (0.0, 0.75, 1.0), (0.0, 0.5, 1.0), (0.0, -0.5, 1.0), (0.0, -0.75, 1.0), (0.0, -1.0, 1.0), (0.0, -1.0, 0.75), (0.0, -1.0, 0.5), (0.0, -1.0, -0.5), (0.0, -1.0, -0.75), (0.0, -1.0, -1.0), (0.0, -0.75, -1.0), (0.0, -0.5, -1.0), (0.0, 0.0, -1.0)], 3, 1),
+    'thin_cross': ([(0.0, 0.2, -0.2), (0.0, 0.2, -1.0), (0.0, -0.2, -1.0), (0.0, -0.2, -0.2), (0.0, -1.0, -0.2), (0.0, -1.0, 0.2), (0.0, -0.2, 0.2), (0.0, -0.2, 1.0), (0.0, 0.2, 1.0), (0.0, 0.2, 0.2), (0.0, 1.0, 0.2), (0.0, 1.0, -0.2), (0.0, 0.2, -0.2)], 1, 1),
+    'triangle': ([(0.0, 1.0, 0.0), (0.0, -0.5, -0.86), (0.0, -0.5, 0.86), (0.0, 1.0, 0.0)], 1, 1)}
+    pointMatrix = [pm.dt.Vector(d)*(width, length, height) for d in data[shapename][0]]
+    key = range(len(pointMatrix)+data[shapename][1]-1)
+    crv = pm.curve(name=name, d=data[shapename][1], p=pointMatrix, k=key)
     log.debug(crv)
     return crv
 
