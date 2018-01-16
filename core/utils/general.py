@@ -166,10 +166,30 @@ def reset_floating_window():
             pm.windowPref(window, remove=True)
             print window, " reset"
 
+def set_project(path):
+    """Set Maya project to path
+    
+    Arguments:
+        path {string} -- Directory to set Project to
+    """
+    if not os.path.isdir(path):
+        pm.workspace.mkdir(path)
+        pm.workspace.open(path)
+        pm.workspace.save()
+    pm.workspace.open(path)
+    pm.workspace.chdir(path)
+
 # Decorators #
 
 def error_alert(func):
-    """print Error if function fail"""
+    """Report Function time and return , Raise Error
+    
+    Arguments:
+        func {function} -- Function passthrough
+    
+    Returns:
+        Function Result
+    """
     @wraps(func)
     def wrapper(*args, **kwargs):
         quiet_mode = False
