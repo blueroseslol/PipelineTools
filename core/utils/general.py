@@ -166,6 +166,13 @@ def reset_floating_window():
             pm.windowPref(window, remove=True)
             print window, " reset"
 
+'''
+reset Outliner
+string $outliners[] = `getPanel -type outlinerPanel`;
+// Set
+for ( $outliner in $outliners )
+{ outlinerEditor -e -setFilter "defaultSetFilter" $outliner; }
+'''
 def set_project(path):
     """Set Maya project to path
     
