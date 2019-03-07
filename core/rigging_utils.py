@@ -932,14 +932,14 @@ def create_bone_on_curve(inputcurve, amount=3, parent=True):
 
 @ul.do_function_on(
     'set',
-    type_filter=['locator','transform', 'mesh', 'vertex', 'edge', 'face'])
+    type_filter=['nurbsCurve','joint', 'locator','transform', 'mesh', 'vertex', 'edge', 'face'])
 def create_joint(ob_list, parent=None):
     new_joints = []
     for ob in ob_list:
         if type(ob) == pm.general.MeshFace:
             new_joints.append(create_middle_joint(ob))
         else:
-            if type(ob) == pm.nt.Transform:
+            if type(ob) == pm.nt.Transform or type(ob) == pm.nt.Joint:
                 get_pos = ob.getTranslation('world')
             elif type(ob) == pm.general.MeshVertex:
                 get_pos = ob.getPosition(space='world')
@@ -948,6 +948,7 @@ def create_joint(ob_list, parent=None):
             pm.select(ob,r=True)
             new_joint = pm.joint(p=get_pos)
             new_joint.setParent(parent)
+            newjoint = new_joint.rename(ob.name()+"_bon")
             new_joints.append(new_joint)
     for new_joint in new_joints:
         pm.joint(new_joint, edit=True, oj='xyz', sao='yup', ch=True, zso=True)

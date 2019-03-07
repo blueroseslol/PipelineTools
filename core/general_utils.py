@@ -578,7 +578,7 @@ def get_type(ob):
         otype = ob.getShape().nodeType()
         assert (otype is not None)
     except AttributeError, AssertionError:
-        otype = ob.nodeType()
+        otype = str(ob.nodeType())
     component_dict = {
         'vertex': pm.general.MeshVertex,
         'edge': pm.general.MeshEdge,
