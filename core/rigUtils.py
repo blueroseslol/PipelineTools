@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import general_utils as ul
+import utils as ul
 import pymel.core as pm
 import math
 from string import ascii_uppercase as alphabet

@@ -7,8 +7,8 @@ from functools import partial
 from string import ascii_uppercase as alphabet
 from itertools import product
 import uiStyle
-# from ..core import general_utils as ul
-from ..core import rigging_utils as rul
+# from ..core import utils as ul
+from ..core import rigUtils as rul
 try:
     from PySide2 import QtWidgets, QtCore, QtGui
 except ImportError:

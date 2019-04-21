@@ -7,8 +7,8 @@ import uiStyle
 from functools import partial
 from string import ascii_uppercase as alphabet
 from itertools import product
-from ..core import general_utils as ul
-from ..core import rigging_utils as rul
+from ..core import utils as ul
+from ..core import rigUtils as rul
 from ..packages.rjTools import paintSmoothWeightsCtx as paintSmoothWeight
 from ..packages.rjTools import paintRemoveInfluenceCtx as paintRemoveWeight
 # reload(paintRemoveWeight.ui)

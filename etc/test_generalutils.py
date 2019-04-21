@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import unittest
-import PipelineTools.core.general_utils as ul
+import PipelineTools.core.utils as ul
 import pymel.core as pm
 reload(ul)
 class DoFunctionOnTest(unittest.TestCase):

@@ -3,13 +3,14 @@ import pymel.core as pm
 from functools import wraps
 import math
 import logging
+import json
 # ------------------------
 logging.basicConfig()
 log = logging.getLogger(__name__)
 log.setLevel(logging.ERROR)
 # ------------------------
 
-class main(object):
+class ControlShapes(object):
     '''Class to create Control'''
 
     def __init__(

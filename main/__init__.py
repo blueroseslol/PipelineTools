@@ -1,13 +1,13 @@
 import ui
-import SkinSetterUI
-import RebuildBSUI
-import RenamerUI
-import ControlsMakerUI
+import SkinSetter
+import BSTools
+import Renamer
+import ControlsMaker
 def _reload():
     for mod in [
         ui,
-        SkinSetterUI,
-        RebuildBSUI,
-        RenamerUI,
-        ControlsMakerUI]:
+        SkinSetter,
+        RebuildBS,
+        Renamer,
+        ControlsMaker]:
         reload(mod)

@@ -1,12 +1,12 @@
-import asset_class
-import rig_class
-import general_utils
-import rigging_utils
+import Asset
+import Rigging
+import utils
+import rigUtils
 ##### Abreviation
-acl = asset_class
-rcl = rig_class
-ul = general_utils
-rul = rigging_utils
+acl = Asset
+rcl = Rigging
+ul = utils
+rul = rigUtils
 mt = rcl.meta
 mtc = rcl.meta.MetaClass
 mtr = rcl.meta.MetaRig

@@ -11,10 +11,10 @@ from __future__ import with_statement
 import types
 from .. import core
 from ..project_specific import ns57
-import RenamerUI
-import RebuildBSUI
-import SkinSetterUI
-import ControlsMakerUI
+import Renamer
+import BSTools
+import SkinSetter
+import ControlsMaker
 import maya.mel as mm
 from pymel.core import *
 # try load External Skinning Tool

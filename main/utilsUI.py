@@ -3,7 +3,7 @@ import maya.mel as mm
 import pymel.core as pm
 from string import ascii_uppercase as alphabet
 from itertools import product
-from ..core import general_utils as ul
+from ..core import utils as ul
 try:
     from PySide2 import QtWidgets, QtCore, QtGui
 except ImportError:

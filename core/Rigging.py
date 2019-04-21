@@ -8,8 +8,8 @@ All code written by me unless specify
 """
 import os
 import pymel.core as pm
-import general_utils as ul
-import rigging_utils as ru
+import utils as ul
+import rigUtils as ru
 import math
 from pymel.util.enum import Enum
 from ..packages.Red9.core import Red9_Meta as meta

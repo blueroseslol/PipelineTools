@@ -8,7 +8,7 @@
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/PipelineTools.iml" afterPath="$PROJECT_DIR$/.idea/PipelineTools.iml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/misc.xml" afterPath="$PROJECT_DIR$/.idea/misc.xml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/core/rig_class.py" afterPath="$PROJECT_DIR$/core/rig_class.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/core/Rigging.py" afterPath="$PROJECT_DIR$/core/Rigging.py" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/etc/testfunction.py" afterPath="$PROJECT_DIR$/etc/testfunction.py" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -22,8 +22,8 @@
     <splitter split-orientation="horizontal" split-proportion="0.58647686">
       <split-first>
         <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-          <file leaf-file-name="rig_class.py" pinned="false" current-in-tab="true">
-            <entry file="file://$PROJECT_DIR$/core/rig_class.py">
+          <file leaf-file-name="Rigging.py" pinned="false" current-in-tab="true">
+            <entry file="file://$PROJECT_DIR$/core/Rigging.py">
               <provider selected="true" editor-type-id="text-editor">
                 <state relative-caret-position="322">
                   <caret line="801" column="13" lean-forward="false" selection-start-line="801" selection-start-column="13" selection-end-line="801" selection-end-column="13" />
@@ -344,8 +344,8 @@
       </split-first>
       <split-second>
         <leaf>
-          <file leaf-file-name="rigging_utils.py" pinned="false" current-in-tab="true">
-            <entry file="file://$PROJECT_DIR$/core/rigging_utils.py">
+          <file leaf-file-name="rigUtils.py" pinned="false" current-in-tab="true">
+            <entry file="file://$PROJECT_DIR$/core/rigUtils.py">
               <provider selected="true" editor-type-id="text-editor">
                 <state relative-caret-position="476">
                   <caret line="54" column="19" lean-forward="false" selection-start-line="54" selection-start-column="19" selection-end-line="54" selection-end-column="19" />
@@ -368,12 +368,12 @@
   <component name="IdeDocumentHistory">
     <option name="CHANGED_PATHS">
       <list>
-        <option value="$PROJECT_DIR$/core/general_utils.py" />
-        <option value="$PROJECT_DIR$/core/rigging_utils.py" />
-        <option value="$PROJECT_DIR$/core/asset_class.py" />
+        <option value="$PROJECT_DIR$/core/utils.py" />
+        <option value="$PROJECT_DIR$/core/rigUtils.py" />
+        <option value="$PROJECT_DIR$/core/Asset.py" />
         <option value="$PROJECT_DIR$/main/ui.py" />
         <option value="$PROJECT_DIR$/etc/testfunction.py" />
-        <option value="$PROJECT_DIR$/core/rig_class.py" />
+        <option value="$PROJECT_DIR$/core/Rigging.py" />
       </list>
     </option>
   </component>
@@ -492,7 +492,7 @@
     <watches-manager />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/core/rig_class.py">
+    <entry file="file://$PROJECT_DIR$/core/Rigging.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
@@ -819,14 +819,14 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/core/general_utils.py">
+    <entry file="file://$PROJECT_DIR$/core/utils.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="59">
           <caret line="7" column="3" lean-forward="true" selection-start-line="7" selection-start-column="3" selection-end-line="7" selection-end-column="3" />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/core/asset_class.py">
+    <entry file="file://$PROJECT_DIR$/core/Asset.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="119">
           <caret line="7" column="3" lean-forward="false" selection-start-line="7" selection-start-column="3" selection-end-line="7" selection-end-column="3" />
@@ -856,7 +856,7 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/core/rigging_utils.py">
+    <entry file="file://$PROJECT_DIR$/core/rigUtils.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="476">
           <caret line="54" column="19" lean-forward="false" selection-start-line="54" selection-start-column="19" selection-end-line="54" selection-end-column="19" />
@@ -864,7 +864,7 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/core/rig_class.py">
+    <entry file="file://$PROJECT_DIR$/core/Rigging.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="322">
           <caret line="801" column="13" lean-forward="false" selection-start-line="801" selection-start-column="13" selection-end-line="801" selection-end-column="13" />
